@@ -1,12 +1,15 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import { config } from "./config/config";
 import { errorHandler } from "./middleware/errorHandler";
+import { httpLogger } from "./middleware/logger";
 import routes from "./routes";
 
 const app: Express = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(httpLogger);
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -29,7 +32,7 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
-app.use("/api", routes);
+app.use("/api/v1", routes);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({

@@ -1,98 +1,276 @@
-# Portfolio AI Assistant
+# Portfolio AI Assistant API Documentation
 
-Express.js server with TypeScript for Portfolio AI Assistant application.
+## AI Features
 
-## 🚀 Getting Started
+This API provides an intelligent assistant powered by Google Gemini AI that can analyze and answer questions about PDF documents.
 
-### Prerequisites
+## Prerequisites
 
-- Node.js (v18 or higher)
-- npm or yarn
+Before using the AI features, you need to:
 
-### Installation
+1. Get a Google Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Add the API key to your `.env` file:
+   ```
+   GEMINI_API_KEY=your_actual_api_key_here
+   ```
 
-1. Install dependencies:
+## API Endpoints
+
+### 1. Check Status
+
+**GET** `/api/ai/status`
+
+Check if a PDF context is loaded and ready.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "contextLoaded": true,
+  "message": "PDF context is loaded and ready"
+}
+```
+
+### 2. Upload PDF
+
+**POST** `/api/ai/upload`
+
+Upload a new PDF file for analysis.
+
+**Request:**
+
+- Method: `POST`
+- Content-Type: `multipart/form-data`
+- Body: Form data with field name `pdf`
+
+**Example using curl:**
 
 ```bash
-npm install
+curl -X POST http://localhost:5000/api/ai/upload \
+  -F "pdf=@/path/to/your/document.pdf"
 ```
 
-2. Create a `.env` file:
+**Response:**
 
-```bash
-cp .env.example .env
+```json
+{
+  "success": true,
+  "message": "PDF uploaded and processed successfully",
+  "file": {
+    "originalName": "document.pdf",
+    "size": 123456,
+    "pages": 5
+  }
+}
 ```
 
-3. Configure your environment variables in `.env`
+### 3. Ask Questions
 
-### Development
+**POST** `/api/ai/ask`
 
-Run the development server with hot reload:
+Ask a question about the loaded PDF content.
 
-```bash
-npm run dev
+**Request:**
+
+```json
+{
+  "question": "What are the key skills mentioned in the document?"
+}
 ```
 
-The server will start on `http://localhost:3000`
+**Response:**
 
-### Build
-
-Compile TypeScript to JavaScript:
-
-```bash
-npm run build
+```json
+{
+  "success": true,
+  "question": "What are the key skills mentioned in the document?",
+  "answer": "Based on the document, the key skills include..."
+}
 ```
 
-### Production
+### 4. Generate Summary
 
-Run the production server:
+**GET** `/api/ai/summary`
 
-```bash
-npm start
+Get an AI-generated summary of the PDF content.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "summary": "This document provides an overview of..."
+}
 ```
 
-## 📁 Project Structure
+### 5. Extract Information
 
-```
-portfolio-ai-assistant/
-├── src/
-│   ├── config/          # Configuration files
-│   ├── middleware/      # Express middleware
-│   ├── routes/          # API routes
-│   └── index.ts         # Application entry point
-├── dist/                # Compiled JavaScript (generated)
-├── .env                 # Environment variables
-├── .env.example         # Example environment variables
-├── tsconfig.json        # TypeScript configuration
-├── nodemon.json         # Nodemon configuration
-└── package.json         # Project dependencies
+**POST** `/api/ai/extract`
+
+Extract specific information from the PDF.
+
+**Request:**
+
+```json
+{
+  "infoType": "skills"
+}
 ```
 
-## 🔌 API Endpoints
+**Response:**
 
-- `GET /health` - Health check endpoint
-- `GET /api` - API welcome message
-- `GET /api/example` - Example endpoint
+```json
+{
+  "success": true,
+  "infoType": "skills",
+  "info": "The following skills are mentioned..."
+}
+```
 
-## 🛠️ Tech Stack
+### 6. Chat with AI
 
-- **Express.js** - Web framework
-- **TypeScript** - Type-safe JavaScript
-- **Node.js** - Runtime environment
-- **Nodemon** - Development auto-reload
-- **ts-node** - TypeScript execution
+**POST** `/api/ai/chat`
 
-## 📝 Scripts
+Have a multi-turn conversation with the AI about the PDF.
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm test` - Run tests
+**Request:**
 
-## 🤝 Contributing
+```json
+{
+  "messages": [
+    { "role": "user", "content": "What is this document about?" },
+    { "role": "assistant", "content": "This is a CV..." },
+    { "role": "user", "content": "Tell me more about the experience" }
+  ]
+}
+```
 
-Feel free to contribute to this project!
+**Response:**
 
-## 📄 License
+```json
+{
+  "success": true,
+  "response": "The experience section shows..."
+}
+```
 
-ISC
+### 7. Load Default PDF
+
+**POST** `/api/ai/load-default`
+
+Load the default PDF (Rafiq CV.pdf) from the project root.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Default PDF loaded successfully",
+  "file": {
+    "name": "Rafiq CV.pdf",
+    "pages": 3
+  }
+}
+```
+
+### 8. Clear Context
+
+**DELETE** `/api/ai/context`
+
+Clear the currently loaded PDF context.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "PDF context cleared successfully"
+}
+```
+
+## Usage Examples
+
+### Example 1: Upload and Ask Questions
+
+```javascript
+// Upload PDF
+const formData = new FormData();
+formData.append("pdf", pdfFile);
+
+const uploadResponse = await fetch("http://localhost:5000/api/ai/upload", {
+  method: "POST",
+  body: formData,
+});
+
+// Ask a question
+const questionResponse = await fetch("http://localhost:5000/api/ai/ask", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    question: "What are the main qualifications?",
+  }),
+});
+```
+
+### Example 2: Get Summary
+
+```javascript
+const response = await fetch("http://localhost:5000/api/ai/summary");
+const data = await response.json();
+console.log(data.summary);
+```
+
+### Example 3: Extract Specific Information
+
+```javascript
+const response = await fetch("http://localhost:5000/api/ai/extract", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    infoType: "education",
+  }),
+});
+```
+
+## Features
+
+- **PDF Upload**: Upload and process PDF files (max 10MB)
+- **Intelligent Q&A**: Ask natural language questions about the PDF content
+- **Summary Generation**: Get comprehensive summaries of the document
+- **Information Extraction**: Extract specific types of information
+- **Conversational AI**: Maintain context across multiple questions
+- **Default PDF**: Automatically loads Rafiq CV.pdf on startup
+
+## Error Handling
+
+All endpoints return standardized error responses:
+
+```json
+{
+  "success": false,
+  "error": "Error message description"
+}
+```
+
+Common HTTP status codes:
+
+- `200`: Success
+- `400`: Bad request (missing parameters, invalid input)
+- `404`: Resource not found
+- `500`: Server error
+
+## Limitations
+
+- Maximum PDF file size: 10MB
+- Only PDF files are accepted
+- Requires valid Gemini API key
+- Rate limits apply based on your Gemini API plan
+
+## Use Cases
+
+- **CV/Resume Analysis**: Extract skills, experience, and qualifications
+- **Document Q&A**: Answer questions about any PDF document
+- **Content Summarization**: Get quick summaries of long documents
+- **Information Extraction**: Pull out specific data points
+- **Interactive Chat**: Have conversations about document content
