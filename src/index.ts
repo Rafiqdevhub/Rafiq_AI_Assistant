@@ -3,6 +3,7 @@ import { config } from "./config/config";
 import { errorHandler } from "./middleware/errorHandler";
 import { httpLogger } from "./middleware/logger";
 import routes from "./routes";
+import router from "./routes";
 
 const app: Express = express();
 
@@ -32,6 +33,7 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
+app.use("/", router);
 app.use("/api/v1", routes);
 
 app.use((req: Request, res: Response) => {
