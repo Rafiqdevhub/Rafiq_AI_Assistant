@@ -2,10 +2,17 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Determine a writable root (Vercel uses /tmp for serverless functions)
+const writableRoot = process.env.VERCEL ? "/tmp" : process.cwd();
+
+// Create uploads directory in a writable location
+const uploadsDir = path.join(writableRoot, "uploads");
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (_err) {
+  // If directory creation fails, multer will still work with memory storage.
 }
 
 // Configure storage

@@ -23,9 +23,12 @@ async function parsePDF(buffer: Buffer): Promise<any> {
     throw new Error("PDF-Parse is not initialized");
   }
 
+  // Use a writable path: Vercel serverless allows writing to /tmp
+  const writableRoot = process.env.VERCEL ? "/tmp" : process.cwd();
+
   // Create a temporary file to write the buffer
   const tempFilePath = path.join(
-    process.cwd(),
+    writableRoot,
     ".temp-pdf-" + Date.now() + ".pdf",
   );
   await fs.writeFile(tempFilePath, buffer);

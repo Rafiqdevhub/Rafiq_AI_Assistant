@@ -17,10 +17,10 @@ const defaultPDFPath = path.join(process.cwd(), "Rafiq CV.pdf");
     if (exists) {
       const text = await pdfService.extractText(defaultPDFPath);
       geminiService.loadPDFContext(text);
-      console.log("✅ Default PDF (Rafiq CV.pdf) loaded successfully");
+      console.log("Default PDF (Rafiq CV.pdf) loaded successfully");
     }
   } catch (error) {
-    console.error("⚠️ Could not load default PDF:", (error as Error).message);
+    console.error("Could not load default PDF:", (error as Error).message);
   }
 })();
 
@@ -83,10 +83,6 @@ router.post(
   },
 );
 
-/**
- * POST /api/ai/ask
- * Ask a question about the loaded PDF
- */
 router.post("/ask", async (req: Request, res: Response): Promise<void> => {
   try {
     const { question } = req.body;
@@ -114,10 +110,6 @@ router.post("/ask", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-/**
- * GET /api/ai/summary
- * Get a summary of the loaded PDF
- */
 router.get("/summary", async (_req: Request, res: Response) => {
   try {
     const summary = await geminiService.generateSummary();
@@ -134,10 +126,6 @@ router.get("/summary", async (_req: Request, res: Response) => {
   }
 });
 
-/**
- * POST /api/ai/extract
- * Extract specific information from the PDF
- */
 router.post("/extract", async (req: Request, res: Response) => {
   try {
     const { infoType } = req.body;
@@ -157,10 +145,6 @@ router.post("/extract", async (req: Request, res: Response) => {
   }
 });
 
-/**
- * POST /api/ai/chat
- * Have a conversation with the AI about the PDF
- */
 router.post("/chat", async (req: Request, res: Response): Promise<void> => {
   try {
     const { messages } = req.body;
@@ -187,10 +171,6 @@ router.post("/chat", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-/**
- * POST /api/ai/load-default
- * Load the default PDF (Rafiq CV.pdf)
- */
 router.post(
   "/load-default",
   async (_req: Request, res: Response): Promise<void> => {
@@ -227,10 +207,6 @@ router.post(
   },
 );
 
-/**
- * DELETE /api/ai/context
- * Clear the loaded PDF context
- */
 router.delete("/context", (_req: Request, res: Response) => {
   try {
     geminiService.clearContext();
